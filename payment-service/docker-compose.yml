@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  payment-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: payment-service
+    ports:
+      - "8004:80"
+    volumes:
+      - ./app:/var/www/html/app
+      - ./resources:/var/www/html/resources
+      - ./config:/var/www/html/config
+      - ./database:/var/www/html/database
+      - ./tests:/var/www/html/tests
+      - ./routes:/var/www/html/routes 
+    environment:
+      DB_CONNECTION: mysql
+      DB_HOST: payment-db
+      DB_PORT: 3306
+      DB_DATABASE: payment_db
+      DB_USERNAME: root
+      DB_PASSWORD: secret
+    networks:
+      - laravel-network
+    depends_on:
+      - payment-db
+
+  payment-db:
+    image: mysql:5.7
+    container_name: payment-db
+    environment:
+      MYSQL_ROOT_PASSWORD: secret
+      MYSQL_DATABASE: payment_db
+    ports:
+      - "33064:3306"
+    networks:
+      - laravel-network
+
+networks:
+  laravel-network:
+    external: true
